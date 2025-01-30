@@ -1,0 +1,15 @@
+import os
+rule vt_decompose:
+    input:
+        vcf = "{prefix}/{sample}/{sample}_{caller}.vcf"
+    output:
+        temp("{prefix}/{sample}/{sample}_{caller}_VTD.vcf")
+    log:
+        "{prefix}/{sample}/logs/{sample}_decompose_{caller}.log"
+    params:
+        vt_decompose_options=config["vt_decompose"]["OPTIONS"]
+    run:
+        if (os.stat(input.vcf).st_size) == 0:
+            shell("touch {output}")
+        else:
+            shell("docker_wrapper -c 'vt decompose {params.vt_decompose_options} {input.vcf} -o {output}' 2>&1 | tee -a {log}")

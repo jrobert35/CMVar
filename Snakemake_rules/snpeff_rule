@@ -1,0 +1,15 @@
+rule snpeff:
+    input:
+        "{prefix}/{sample}/{sample}_final.vcf"
+    output:
+        vcf = "{prefix}/{sample}/{sample}_snpeff.vcf",
+        csv = "{prefix}/multiqc/{sample}/{sample}.csv"
+    log:
+        "{prefix}/{sample}/logs/{sample}_snpEff.log"
+    params:
+        database=config["snpeff"]["DATABASE"],
+        version=config["snpeff"]["VERSION"],
+        genome=config["snpeff"]["GENOME"],
+        snpeff_options=config["snpeff"]["OPTIONS"]
+    shell:
+        "java -Xmx7500m -Xms7500m -XX:ParallelGCThreads=1 -XX:+AggressiveHeap -jar /usr/share/java/snpEff.jar ann -c /data/annotations/snpeff_config_file/{params.version}/snpEff.config {params.snpeff_options} -csvStats {output.csv} -dataDir {params.database}/{params.version} {params.genome} {input} 2>&1 1> {output.vcf} | tee -a {log}"

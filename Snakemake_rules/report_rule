@@ -1,0 +1,15 @@
+rule report:
+    input:
+        vcf = "{prefix}/{sample}/{sample}_snpeff.vcf",
+        flagstat = "{prefix}/multiqc/{sample}/{sample}.txt",
+        coverage = "{prefix}/{sample}/{sample}_coverage_maker.txt"
+    output:
+        "{prefix}/{sample}/{sample}.html"
+    log:
+        "{prefix}/{sample}/logs/{sample}_report.log"
+    params:
+        script = config["general_path"]["REPORT_SCRIPT"],
+        target = config["general_informations"]["TARGETS_BED"],
+	html = config["report"]["HTML_TEMPLATE"]
+    shell:
+        "python3 {params.script} -t {params.html} -b {params.target} -v {input.vcf} -f {input.flagstat} -c {input.coverage} -o {output}"

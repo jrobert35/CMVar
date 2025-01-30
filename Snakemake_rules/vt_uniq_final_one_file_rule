@@ -1,0 +1,15 @@
+import os
+rule vt_uniq:
+    input:
+        vcf="{prefix}/{sample}/{sample}_{caller}_VTN.vcf"
+    output:
+        "{prefix}/{sample}/{sample}_{caller}_final.vcf"
+    log:
+        "{prefix}/{sample}/logs/{sample}_uniq_{caller}.log"
+    params:
+        vt_uniq_options=config["vt_uniq"]["OPTIONS"]
+    run:
+        if (os.stat(input.vcf).st_size) == 0:
+            shell("touch {output}")
+        else:
+            shell("docker_wrapper -c 'vt uniq {params.vt_uniq_options} -o {output} {input.vcf}' 2>&1 | tee -a {log}")

@@ -1,0 +1,17 @@
+import os
+from glob import glob
+
+rule samtools_index:
+    input:
+        bam = "{prefix}.bam"
+    output:
+        "{prefix}.bam.bai"
+#    log:
+#        "{prefix}/{sample}/logs/{sample}_samtools_index.log"
+    params:
+        samtools_index_options = config["samtools_index"]["OPTIONS"]
+    run:
+        if (os.stat(input.bam).st_size) == 0:
+            shell("touch {output}")
+        else:
+            shell('docker_wrapper -c \"samtools index {params.samtools_index_options} {input.bam} {output} \" 2>&1 | tee -a {log}')

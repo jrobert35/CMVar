@@ -1,0 +1,18 @@
+rule samtools_mpileup:
+    input:
+        bam = "{prefix}/{sample}/{sample}_realign.bam",
+	bai = "{prefix}/{sample}/{sample}_realign.bai"
+    output:
+        "{prefix}/{sample}/mpileup/{sample}_{caller}.{ext,(pileup|bcf)}"
+    log:
+        "{prefix}/{sample}/logs/{sample}_samtools_mpileup_{caller}.log"
+    params:
+        samtools_mpileup_pileup_options=config["samtools_mpileup_pileup"]["OPTIONS"],
+        samtools_mpileup_bcf_options=config["samtools_mpileup_bcf"]["OPTIONS"],
+        bedtarget=config["general_informations"]["TARGETS_BED"],
+        reference_fasta=config["general_informations"]["FASTA_FILE"]
+    run:
+        if ".pileup" in output[0]:
+            shell("docker_wrapper -c \'samtools mpileup {params.samtools_mpileup_pileup_options} -f {params.reference_fasta} -l {params.bedtarget} {input.bam} -o {output}\' 2>&1 | tee -a {log}")
+        else:
+            shell("docker_wrapper -c \'samtools mpileup {params.samtools_mpileup_bcf_options} -f {params.reference_fasta} -l {params.bedtarget} {input.bam} -o {output}\' 2>&1 | tee -a {log}")

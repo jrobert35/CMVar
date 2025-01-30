@@ -1,0 +1,11 @@
+rule bcftools_index:
+    input:
+        "{prefix}/{sample}/mpileup/{sample}_ST.bcf"
+    output:
+        temp("{prefix}/{sample}/mpileup/{sample}_ST.bcf.tbi")
+    log:
+        "{prefix}/{sample}/logs/{sample}_bcftools_index.log"
+    params:
+        bcftools_index_options = config["bcftools_index"]["OPTIONS"]
+    shell:
+        'docker_wrapper -c \"bcftools index {params.bcftools_index_options} {input} > {output} \" 2>&1 | tee -a {log}'

@@ -1,0 +1,24 @@
+rule pindel:
+    input:
+      bam = "{prefix}/{sample}/{sample}_realign.bam",
+      bai = "{prefix}/{sample}/{sample}_realign.bai"
+    output:
+      D = temp("{prefix}/{sample}/pindel/{sample}_PL_D"),
+      BP = temp("{prefix}/{sample}/pindel/{sample}_PL_BP"),
+      INV = temp("{prefix}/{sample}/pindel/{sample}_PL_INV"),
+      TD = temp("{prefix}/{sample}/pindel/{sample}_PL_TD"),
+      LI = temp("{prefix}/{sample}/pindel/{sample}_PL_LI"),
+      SI = temp("{prefix}/{sample}/pindel/{sample}_PL_SI"),
+      RP = temp("{prefix}/{sample}/pindel/{sample}_PL_RP"),
+      CloseEndMapped = temp("{prefix}/{sample}/pindel/{sample}_PL_CloseEndMapped"),
+      INT_final = temp("{prefix}/{sample}/pindel/{sample}_PL_INT_final")
+    log:
+      "{prefix}/{sample}/logs/{sample}_pindel.log"
+    params:
+      pindel_options = config["pindel"]["OPTIONS"],
+      reference = config["general_informations"]["FASTA_FILE"],
+      bedtarget = config["general_informations"]["TARGETS_BED"],
+      insert_size = config["general_informations"]["INSERT_SIZE"]
+    run:
+        shell('pindel {params.pindel_options} -f {params.reference} -j {params.bedtarget} -i <(echo \"{input.bam} {params.insert_size} {wildcards.sample}\") -o {wildcards.prefix}/{wildcards.sample}/pindel/{wildcards.sample}_PL 2>&1 | tee -a {log}')
+

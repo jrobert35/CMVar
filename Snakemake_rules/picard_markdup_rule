@@ -1,0 +1,13 @@
+rule picard_markdup:
+    input:
+        "{prefix}/{sample}/{sample}_sorted.bam"
+    output:
+        marked = "{prefix}/{sample}/{sample}_marked.bam",
+        metrics = "{prefix}/{sample}/{sample}_metrics.txt"
+    log:
+        "{prefix}/{sample}/logs/{sample}_picard_markdup.log"
+    params:
+        picard_markdup_options = config["picard_markdup"]["OPTIONS"]
+    shell:
+        "java -Xmx7500m -Xms7500m -XX:ParallelGCThreads=8 -XX:+AggressiveHeap -jar /usr/share/java/picard.jar MarkDuplicates {params.picard_markdup_options} INPUT={input} OUTPUT={output.marked} METRICS_FILE={output.metrics} 2>&1 | tee -a {log}"
+

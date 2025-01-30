@@ -1,0 +1,12 @@
+rule varscan_indel:
+    input:
+        "{prefix}/{sample}/mpileup/{sample}_VS.pileup"
+    output:
+        "{prefix}/{sample}/{sample}_indel.vcf"
+    log:
+        "{prefix}/{sample}/logs/{sample}_varscan_indel.log"
+    params:
+        varscan_options = config["varscan_indel"]["OPTIONS"],
+        varscan_version = config["varscan_indel"]["VERSION"]
+    run:
+        shell('java -Xmx7500m -Xms7500m -XX:ParallelGCThreads=2 -XX:+AggressiveHeap -jar /usr/share/java/{params.varscan_version}.jar mpileup2indel {input} {params.varscan_options} 2>&1 > {output} | tee -a {log}')

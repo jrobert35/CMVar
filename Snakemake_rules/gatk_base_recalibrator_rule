@@ -1,0 +1,20 @@
+params_br = config["gatk_base_recalibrator"]["OPTIONS"]
+
+rule gatk_base_recalibrator:
+    input:
+      bam = "{prefix}/{sample}/{sample}{ext,(_marked_sorted|_realign|_fixed_sorted)}.bam",
+      bai = "{prefix}/{sample}/{sample}{ext,(_marked_sorted|_realign|_fixed_sorted)}.bam.bai"
+    output:
+      temp("{prefix}/{sample}/{sample}{ext}_recalib.txt")
+    log:
+      "{prefix}/{sample}/logs/{sample}_gatk_base_recalibrator.log"
+    params:
+      gatk_base_recalibrator_options = config["gatk_base_recalibrator"]["OPTIONS"],
+      reference = config["general_informations"]["FASTA_FILE"],
+      known_indels = config["general_informations"]["KNOWN_INDELS"],
+      known_snps = config["general_informations"]["KNOWN_SNPS"]
+    run:
+      if "nct" in params_br:
+          shell('java -Xmx16000m -Xms16000m -XX:ParallelGCThreads=4 -XX:+AggressiveHeap -jar /usr/share/java/GenomeAnalysisTK.jar -T BaseRecalibrator {params.gatk_base_recalibrator_options} -R {params.reference} -I {input.bam} -o {output} 2>&1 | tee -a {log}')
+      else:
+          shell('java -Xmx16000m -Xms16000m -XX:ParallelGCThreads=2 -XX:+AggressiveHeap -jar /usr/share/java/GenomeAnalysisTK.jar BaseRecalibrator {params.gatk_base_recalibrator_options} -R {params.reference} -I {input.bam} -O {output} 2>&1 | tee -a {log}')

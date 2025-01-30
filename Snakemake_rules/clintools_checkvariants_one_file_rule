@@ -1,0 +1,13 @@
+rule clintools_checkvariants:
+    input:
+        "{prefix}/{sample}/mpileup/{sample}_VS.pileup"
+    output:
+        "{prefix}/{sample}/{sample}_{caller,(CT)}.tsv"
+    log:
+        "{prefix}/{sample}/logs/{sample}_clintools_checkvariants.log"
+    params:
+        clintools_checkvariants_options = config["clintools_checkvariants"]["OPTIONS"],
+        config_file = "{prefix}/{sample}/{sample}_config_file.csv"
+    run:
+    	shell('echo \"{wildcards.sample},{input}\" > {params.config_file}')
+        shell("check_variants.py {params.clintools_checkvariants_options} -s {params.config_file} > {output} 2>&1 | tee -a {log}")

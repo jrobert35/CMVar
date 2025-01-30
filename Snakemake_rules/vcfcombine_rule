@@ -1,0 +1,12 @@
+rule vcfcombine:
+    input:
+        snp = "{prefix}/{sample}/{sample}_snp.vcf",
+        indel = "{prefix}/{sample}/{sample}_indel.vcf"
+    output:
+        "{prefix}/{sample}/{sample}_VS.vcf"
+    log:
+        "{prefix}/{sample}/logs/{sample}_vcfcombine.log"
+    params:
+        vcfcombine_options = config["vcfcombine"]["OPTIONS"]
+    shell:
+        'vcflib vcfcombine {input.snp} {input.indel} 2>&1 > {output} | tee -a {log}'

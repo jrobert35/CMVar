@@ -1,0 +1,11 @@
+rule convert:
+    input:
+        "{prefix}/{sample}/{sample}_snpeff.vcf"
+    output:
+        "{prefix}/{sample}/{sample}_converted.vcf"
+    log:
+        "{prefix}/{sample}/logs/{sample}_convert.log"
+    params:
+        script = config["general_path"]["CONVERT_SCRIPT"]
+    shell:
+        'python3 {params.script} --strip --condense {input} P {output}'

@@ -1,0 +1,14 @@
+rule coverage_maker:
+    input:
+        "{prefix}/{sample}/{sample}_sorted.bam"
+    output:
+        "{prefix}/{sample}/{sample}_coverage_maker.txt"
+    log:
+        "{prefix}/{sample}/logs/{sample}_coverage_maker.log"
+    params:
+        coverage_maker_options = config["coverage_maker"]["OPTIONS"],
+        reference = config["general_informations"]["GENOME_FILE"],
+        target = config["general_informations"]["TARGETS_BED"]
+    shell:
+        "echo {wildcards.sample} {input} > /tmp/config.txt; \
+        coverage_maker.sh /tmp/config.txt {params.target} {output} {params.reference} {params.coverage_maker_options} 2>&1 | tee -a {log}"

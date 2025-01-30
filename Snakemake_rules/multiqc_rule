@@ -1,0 +1,66 @@
+import codecs
+import glob
+import re
+from time import gmtime, strftime
+
+###### samples names ######
+input_path = config["general_path"]["INPUT_PATH"]
+sample_ids = []
+sampleName=glob.glob(input_path + "/*.fastq.gz")
+for name in sampleName:
+    path = input_path + "/"
+    name = name.replace(path, '')
+    a = re.split('/', name)
+    name = a[0]
+    name = name.replace('_R1_001.fastq.gz', '')
+    name = name.replace('_R2_001.fastq.gz', '')
+    sample_ids.append(name)
+
+output_path = config["general_path"]["OUTPUT_PATH"]
+pipeline_id = config["general_informations"]["PIPELINE"].split(".")[-1]
+pipeline_version = config["general_informations"]["PIPELINE"].split(".")[0]
+cluster_version = config["general_informations"]["PIPELINE"].split(".")[1]
+config_version = config["general_informations"]["PIPELINE"].split(".")[2]
+
+
+rule multiqc:
+    input:
+        fastq_R1 = expand(output_path+"/multiqc/{sample}/{sample}_R1_fastqc.html", sample=sample_ids),
+        fastq_R2 = expand(output_path+"/multiqc/{sample}/{sample}_R2_fastqc.html", sample=sample_ids),
+        flagstat = expand(output_path+"/multiqc/{sample}/{sample}.txt", sample=sample_ids)
+    output:
+        "{prefix}/multiqc/results/multiqc_report.html"
+    log:
+        "{prefix}/multiqc/results/multiqc.log"
+    params:
+        multiqc_options = config["multiqc"]["OPTIONS"]
+    run:
+        ############ config file ###################
+        f = codecs.open(output_path+"/multiqc/results/report.config", "w", encoding='utf-8')
+        f.write('title: "AP-HP report"\n')
+        f.write(strftime('intro_text: "%Y-%m-%d %H:%M:%S"\n', gmtime()))
+        f.write('custom_logo: "/data/snakemake/logo_aphp.png"\n')
+        f.write('custom_logo_url: "https://www.aphp.fr/"\n')
+        f.write('custom_logo_title: "AP-HP"\n\n')
+        f.write('report_header_info:\n')
+        f.write('    - Réalisation : "Plateforme de bioinformatique MOABI (AP-HP)"\n')
+        f.write('    - Pipeline : "'+pipeline_id+'"\n')
+        f.write('    - Version : "v'+pipeline_version+'.'+cluster_version+'.'+config_version+'"\n')
+        f.write('    - Panel : "'+config["general_informations"]["PANEL_NAME"]+'"\n')
+        f.write('    - Taille des lectures : "'+config["general_informations"]["READ_LENGTH"]+'"\n')
+        f.write('    - Hôpital : "'+config["general_informations"]["HOSPIT"]+'"\n')
+        f.write('    - Mail opérateur : "'+config["general_informations"]["MAIL"]+'"\n')
+        f.write('    - Mail contact : "pipelines@bioinfo.aphp.fr"\n\n')
+        f.write('decimalPoint_format: ","\n')
+        f.write('thousandsSep_format: ""\n\n')
+        f.write('module_order:\n')
+        f.write('    - "general_stats"\n')
+        f.write('    - "fastqc"\n')
+        f.write('    - "samtools"\n')
+        f.write('    - "snpeff"\n')
+        f.close()
+        ############## end #############
+
+        shell('multiqc -c {output_path}/multiqc/results/report.config -f -o {output_path}/multiqc/results/ {output_path}/multiqc/ 2>&1 | tee -a {log}')
+
+

@@ -1,0 +1,23 @@
+rule pindel2vcf:
+    input:
+      D = temp("{prefix}/{sample}/pindel/{sample}_PL_D"),
+      BP = temp("{prefix}/{sample}/pindel/{sample}_PL_BP"),
+      INV = temp("{prefix}/{sample}/pindel/{sample}_PL_INV"),
+      TD = temp("{prefix}/{sample}/pindel/{sample}_PL_TD"),
+      LI = temp("{prefix}/{sample}/pindel/{sample}_PL_LI"),
+      SI = temp("{prefix}/{sample}/pindel/{sample}_PL_SI"),
+      RP = temp("{prefix}/{sample}/pindel/{sample}_PL_RP"),
+      CloseEndMapped = temp("{prefix}/{sample}/pindel/{sample}_PL_CloseEndMapped"),
+      INT_final = temp("{prefix}/{sample}/pindel/{sample}_PL_INT_final")
+    output:
+      temp("{prefix}/{sample}/{sample}_PL.vcf")
+    log:
+      "{prefix}/{sample}/logs/{sample}_pindel.log"
+    params:
+      pindel2vcf_options = config["pindel2vcf"]["OPTIONS"],
+      reference = config["general_informations"]["FASTA_FILE"],
+      reference_name = config["general_informations"]["REFERENCE_NAME"],
+      reference_date = config["general_informations"]["REFERENCE_DATE"]
+    run:
+        shell('pindel2vcf {params.pindel2vcf_options} -r {params.reference} -R {params.reference_name} -d {params.reference_date} -P {wildcards.prefix}/{wildcards.sample}/pindel/{wildcards.sample}_PL -v {output} 2>&1 | tee -a {log}')
+

@@ -1,0 +1,18 @@
+rule vardict:
+    input:
+        bam = "{prefix}/{sample}/{sample}_realign.bam",
+      	bai = "{prefix}/{sample}/{sample}_realign.bai"
+    output:
+        temp("{prefix}/{sample}/{sample}_VD.vcf")
+    log:
+        "{prefix}/{sample}/logs/{sample}_vardict.log"
+    params:
+        vardict_options = config["vardict"]["OPTIONS"],
+        var2vcf_valid_options = config["vardict"]["VAR2VCF"],
+        reference_fasta = config["general_informations"]["FASTA_FILE"],
+        bedtarget = config["general_informations"]["TARGETS_BED"]
+    shell:
+        '/usr/share/java/bin/VarDict -G {params.reference_fasta} {params.vardict_options} \
+        -b {input.bam} {params.bedtarget} | cut -f -34 | /usr/share/java/bin/teststrandbias.R \
+        | /usr/share/java/bin/var2vcf_valid.pl -N {wildcards.sample} {params.var2vcf_valid_options} \
+        1> {output} 2>&1 | tee -a {log}'

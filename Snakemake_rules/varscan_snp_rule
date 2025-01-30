@@ -1,0 +1,12 @@
+rule varscan_snp:
+    input:
+        "{prefix}/{sample}/mpileup/{sample}_VS.pileup"
+    output:
+        "{prefix}/{sample}/{sample}_snp.vcf"
+    log:
+        "{prefix}/{sample}/logs/{sample}_varscan_snp.log"
+    params:
+        varscan_options = config["varscan_snp"]["OPTIONS"],
+        varscan_version = config["varscan_snp"]["VERSION"]
+    run:
+        shell('java -Xmx7500m -Xms7500m -XX:ParallelGCThreads=2 -XX:+AggressiveHeap -jar /usr/share/java/{params.varscan_version}.jar mpileup2snp {input} {params.varscan_options} 2>&1 > {output} | tee -a {log}')

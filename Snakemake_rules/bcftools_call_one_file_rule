@@ -1,0 +1,14 @@
+rule bcftools_call:
+    input:
+        bcf = "{prefix}/{sample}/mpileup/{sample}_ST.bcf",
+        tbi = "{prefix}/{sample}/mpileup/{sample}_ST.bcf.tbi"
+    output:
+        temp("{prefix}/{sample}/{sample}_ST.vcf")
+    log:
+        "{prefix}/{sample}/logs/{sample}_bcftools_call.log"
+    params:
+        bcftools_call_options=config["bcftools_call"]["OPTIONS"],
+        bedtarget = config["general_informations"]["TARGETS_BED"]
+    shell:
+        "docker_wrapper -c \"bcftools call {params.bcftools_call_options} -R {params.bedtarget} -o {output} {input.bcf} \" 2>&1 | tee -a {log}"
+

@@ -1,0 +1,140 @@
+{
+    "description": "This config file is designed to run pipeline.",
+    "author": "Julien ROBERT",
+    "general_path": {
+        "INPUT_PATH": "/scratch/recherche/jrobert/virologie/CMV_analysis/data/cmvltvrun2",
+        "OUTPUT_PATH": "/scratch/recherche/jrobert/virologie/CMV_analysis/output_cmvltvrun2_cinq_callers",
+        "RULE_PATH": "/scratch/recherche/jrobert/pipeline/CMV_analysis/cinq_callers/Snakemake_rules",
+        "CONVERT_SCRIPT": "/scratch/recherche/jrobert/pipeline/scripts/convert_characters.py",
+        "REPORT_SCRIPT": "/scratch/recherche/jrobert/pipeline/scripts/report_cinq_callers.py"
+    },
+    "general_informations": {
+        "PIPELINE": "1.1.1",
+        "USER": "4177905",
+        "MAIL": "julien.robert@aphp.fr",
+        "ID_OPERATION": "",
+        "ID_PIPELINE": "",
+        "TEAM_ID": "",
+        "GENOME_VERSION":  "",
+        "GENOME_ID":  "",
+        "PROJECT_NAME": "",
+        "HOSPIT": "SLS",
+        "PANEL_NAME": "",
+        "PANEL_ID": "",
+        "ANALYSIS_NAME": "CMV_analysis",
+        "SEQUENCER": "",
+        "TARGETS_BED": "/scratch/recherche/jrobert/virologie/CMV_analysis/ref/CMV_complet.bed",
+	    "KNOWN_INDELS": "",
+        "KNOWN_SNPS": "",
+        "ADAPTERS": "/scratch/recherche/jrobert/virologie/data/adapters_230721_fastqc.txt",
+        "GENOME_FILE": "/data/annotations/Human_herpesvirus/FJ616285.1/human_herpesvirus.fasta.genomeFile.txt",
+        "FASTA_FILE": "/data/annotations/Human_herpesvirus/FJ616285.1/human_herpesvirus.fasta",
+        "INSERT_SIZE": "400",
+        "READ_LENGTH": "",
+        "REFERENCE_NAME": "Human_herpesvirus",
+        "REFERENCE_DATE": "FJ616285.1"
+    },
+    "trimmomatic": {
+        "OPTIONS": "PE -threads 3",
+        "PARAMS": "SLIDINGWINDOW:4:25"
+    },
+    "fastqc": {
+        "OPTIONS": ""
+    },
+    "bwa_mem": {
+        "OPTIONS": "-t 8"
+    },
+    "samtools_sam_to_bam": {
+        "OPTIONS": "-@ 1 -b -h"
+    },
+    "samtools_sort": {
+	"OPTIONS": "-@ 1 -m 2000M -O bam"
+    },
+    "samtools_index": {
+        "OPTIONS": "-b"
+    },
+    "coverage_maker": {
+        "OPTIONS": "5"
+    },
+    "samtools_flagstat": {
+        "OPTIONS": ""
+    },
+    "multiqc": {
+        "OPTIONS": ""
+    },
+    "picard_markdup": {
+	"OPTIONS": ""
+    },
+    "gatk_realigner_target_creator": {
+	"OPTIONS": "-nt 8 -filterNoBases"
+    },
+    "gatk_indel_realigner": {
+	"OPTIONS": "-filterNoBases"
+    },
+    "gatk_base_recalibrator": {
+        "OPTIONS": ""
+    },
+    "gatk_print_reads": {
+        "OPTIONS": ""
+    },
+    "samtools_mpileup_pileup": {
+        "OPTIONS": "-Q 0 -d 1000000 -A -B"
+    },
+    "samtools_mpileup_bcf": {
+        "OPTIONS": "-Q 0 -d 1000000 -A -B -v"
+    },
+    "varscan_snp": {
+        "OPTIONS": "--min-coverage 5 --min-reads2 2 --min-avg-qual 15 --min-var-freq 0.05 --min-freq-for-hom 0.75 --output-vcf 1",
+        "VERSION": "VarScan.v2.4.3"
+    },
+    "varscan_indel": {
+        "OPTIONS": "--min-coverage 5 --min-reads2 2 --min-avg-qual 15 --min-var-freq 0.05 --min-freq-for-hom 0.75 --output-vcf 1",
+        "VERSION": "VarScan.v2.4.3"
+    },
+    "vcfcombine": {
+        "OPTIONS": ""
+    },
+    "clintools_checkvariants": {
+        "OPTIONS": ""
+    },
+    "bcftools_index": {
+        "OPTIONS": "-t"
+    },
+    "bcftools_call": {
+        "OPTIONS": "-O v -v -m"
+    },
+    "pindel": {
+        "OPTIONS": "-T 6 -E 0.95 -u 0.01 -e 0.005 -M 2 -c ALL -R true --IndelCorrection true"
+    },
+    "pindel2vcf": {
+        "OPTIONS": "--gatk_compatible --min_supporting_reads 2"
+    },
+    "vardict": {
+        "OPTIONS": "-z 1 -c 1 -S 2 -E 3 -g 4 -U -L 50000 -Y 50000 -k 0 -X 0",
+        "VAR2VCF": "-E -f 0.01"
+    },
+    "vt_decompose": {
+        "OPTIONS": "-s"
+    },
+    "vt_normalize": {
+        "OPTIONS": "-q -m -n"
+    },
+    "vt_uniq": {
+        "OPTIONS": ""
+    },
+    "combineVCF2Leaves": {
+        "OPTIONS": "--thresholds 10,30,40,60,70,80,20,40,50,2 --rescue --disable_strand_bias"
+    },
+    "snpeff": {
+        "OPTIONS": "-i vcf -o vcf -upDownStreamLen 0 -spliceSiteSize '2' -no-downstream -no-upstream",
+        "DATABASE": "/data/annotations/Human_herpesvirus/FJ616285.1/index/snpEff",
+        "VERSION": "v4.3t",
+        "GENOME": "FJ616285.1"
+    },
+    "convert": {
+        "OPTIONS": ""
+    },
+    "report": {
+        "HTML_TEMPLATE": "/scratch/recherche/jrobert/pipeline/scripts"
+    }
+}

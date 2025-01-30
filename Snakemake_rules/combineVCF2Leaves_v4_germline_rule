@@ -1,0 +1,24 @@
+rule combineVCF2Leaves:
+    input:
+        CT = "{prefix}/{sample}/{sample}_CT.tsv",
+        ST = "{prefix}/{sample}/{sample}_ST_final.vcf",
+        VS = "{prefix}/{sample}/{sample}_VS_final.vcf",
+        VD = "{prefix}/{sample}/{sample}_VD_final.vcf",
+        PL = "{prefix}/{sample}/{sample}_PL_final.vcf"
+    output:
+        "{prefix}/{sample}/{sample}_final.vcf"
+    log:
+        "{prefix}/{sample}/logs/{sample}_CombineVCF2Leaves.log"
+    params:
+        combineVCF2Leaves_options = config["combineVCF2Leaves"]["OPTIONS"],
+        reference_genome = config["general_informations"]["FASTA_FILE"]
+    shell:
+        "CombineVCF2Leaves.pl {params.combineVCF2Leaves_options} \
+        --reference_genome {params.reference_genome}.fai \
+        --sample_id {wildcards.sample} \
+        --vcf_files ST,{input.ST} \
+        --vcf_files VS,{input.VS} \
+        --vcf_files VD,{input.VD} \
+        --vcf_files PL,{input.PL} \
+        --pileup {input.CT} \
+        --output_file {output} 2>&1 | tee -a {log}"

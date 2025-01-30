@@ -1,0 +1,15 @@
+rule gatk_print_reads:
+    input:
+      bam = "{prefix}/{sample}/{sample}_realign.bam",
+      bai = "{prefix}/{sample}/{sample}_realign.bai",
+      bqsr = "{prefix}/{sample}/{sample}_realign_recalib.txt"
+    output:
+      bam = "{prefix}/{sample}/{sample}_cleaned.bam",
+      bai = "{prefix}/{sample}/{sample}_cleaned.bai"
+    log:
+      "{prefix}/{sample}/logs/{sample}_gatk_print_reads.log"
+    params:
+      gatk_print_reads_options = config["gatk_print_reads"]["OPTIONS"],
+      reference = config["general_informations"]["FASTA_FILE"]
+    shell:
+      'java -Xmx11000m -Xms11000m -XX:ParallelGCThreads=8 -XX:+AggressiveHeap -jar /usr/share/java/GenomeAnalysisTK.jar -T PrintReads {params.gatk_print_reads_options} -R {params.reference} -BQSR {input.bqsr} -I {input.bam} -o {output.bam} 2>&1 | tee -a {log}'

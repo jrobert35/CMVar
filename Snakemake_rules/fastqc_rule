@@ -1,0 +1,12 @@
+rule fastqc:
+	input:
+		"{prefix}/{sample}/{sample}_{mate}_paired.fq.gz"
+	output:
+		"{prefix}/multiqc/{sample}/{sample}_{mate}_fastqc.html"
+	log:
+		"{prefix}/{sample}/logs/{sample}_{mate}_fastqc.log"
+	params:
+		fastqc_options = config["fastqc"]["OPTIONS"]
+	run:
+		shell('docker_wrapper -c \'fastqc -o {wildcards.prefix}/multiqc/{wildcards.sample} {input} {params.fastqc_options}\' 2>&1 | tee -a {log}')
+		shell('mv {wildcards.prefix}/multiqc/{wildcards.sample}/{wildcards.sample}_{wildcards.mate}_paired_fastqc.html {output}')
